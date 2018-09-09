@@ -2,6 +2,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import time
 import csv
+import mysql.connector
 
 driver = webdriver.Firefox()
 driver.get("https://www.deliveryextra.com.br/busca?c= cat2:alimentos_arrozcomum")
@@ -21,7 +22,7 @@ html = data.get_attribute("innerHTML")
 soup = BeautifulSoup(html, "html.parser")
 rice_list = soup.findAll('div', class_='panel-product')
 c = csv.writer(open("produtos.csv", "w"))
-c.writerow(['Nome', 'Preco'])
+c.writerow(['Nome', 'Subcategoria', 'Peso', 'Fabricante', 'Preco'])
 for rice in rice_list:
     name = rice['produto-nome']
     preco = rice['produto-preco']
@@ -31,13 +32,59 @@ for rice in rice_list:
     p_ruptura = rice['ruptura']
     subcategoria = rice['subcategoria']
     if name and preco and p_ruptura=="Falso":
+        #CategorizarPorTipo
+        if str(name).find("Arroz Parboilizado") == 0:
+            subcategoria = "Arroz Parboilizado"
+        elif str(name).find("Arroz Agulhinha") == 0:
+            subcategoria = "Arroz Agulhinha"
+        elif str(name).find("Arroz Integral") == 0:
+            subcategoria = "Arroz Integral"
+        elif str(name).find("Risoto") == 0:
+            subcategoria = "Risoto"
+        elif str(name).find("Orgânico") != -1:
+            subcategoria = "Orgânico"
+        else:
+            subcategoria = "Outros"
+        #CategorizarPorPeso
+        peso_text = str(name)[::-1]
+        peso_text = peso_text.split()
+        peso = peso_text[0]
+        peso = peso[::-1]
+        #CategorizarPorFabricante
+        print("======================================")
+        if str(name).find("URBANO") != -1:
+            fabricante = "URBANO"
+        elif str(name).find("TIO JOÃO") != -1:
+            fabricante = "TIO JOÃO"
+        elif str(name).find("PASTAROTTI") != -1:
+            fabricante = "PASTAROTTI"
+        elif str(name).find("BIJU") != -1:
+            fabricante = "BIJU"
+        elif str(name).find("PANTERA") != -1:
+            fabricante = "PANTERA"
+        elif str(name).find("PILECO NOBRE") != -1:
+            fabricante = "PILECO NOBRE"
+        elif str(name).find("CAMIL") != -1:
+            fabricante = "CAMIL"
+        elif str(name).find("LA PASTINA") != -1:
+            fabricante = "LA PASTINA"
+        elif str(name).find("RÁRIS") != -1:
+            fabricante = "RÁRIS"
+        elif str(name).find("CASINO") != -1:
+            fabricante = "CASINO"
+        elif str(name).find("BLUE VILLE") != -1:
+            fabricante = "BLUE VILLE"
+        elif str(name).find("QUALITÁ") != -1:
+            fabricante = "QUALITÁ"
+        elif str(name).find("PRATO FINO") != -1:
+            fabricante = "PRATO FINO"
+        elif str(name).find("Organic") != -1:
+            fabricante = "Organic"
         print('Name: %s' % (name))
         print('Price: %s' % (preco))
         print('Qtd: %s' % (p_qtd))
-        print('Sku: %s' % (p_sku))
-        print('Ruptura: %s' % (p_ruptura))
-        print('subcategoria: %s' % (subcategoria))
-        print('Fab: %s\n' %(fabricante))
-        c.writerow([name,preco])
-print(len(rice_list))
+        print('Subcategoria: %s' % (subcategoria))
+        print('Peso: %s' % (peso))
+        print('Fabricante: %s' % (fabricante))
+        c.writerow([name,subcategoria,peso,fabricante,preco])
 driver.close()
