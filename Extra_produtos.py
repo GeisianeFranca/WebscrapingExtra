@@ -6,36 +6,23 @@ import mysql.connector
 # import sys
 # reload(sys)
 # sys.setdefaultencoding('utf-8')
+class ProdutoExtra(object):
 
-class Produto(object):
-
-    def __init__(self,URL):
+    def __init__(self,URL,db,driver):
         self.URL = URL
         self.produc_list = []
-        self.db = mysql.connector.connect(
-            host="localhost",
-            user="admin",
-            passwd="12345",
-            database="test"
-        )
+        self.db = db
         self.list_tipo = ["Parboilizado", "Agulhinha", "Integral", "Risoto", "Orgânico", "Basmati", "Carioca", "Preto",
-                          "Branco", "Vermelho", "Fradinho"]
+                          "Branco", "Vermelho", "Fradinho", "Demerara", "Mascavo", "Cristal", "Refinado", "Orgânico Cristal",
+                          "Orgânico Demerara", "Orgânico Claro", "Light", "Confeiteiro"]
         self.list_fabricante = ["URBANO", "TIO JOÃO", "PASTAROTTI", "BIJU", "PANTERA", "CAMIL", "LA PASTINA", "RÁRIS", "BLUE VILLE",
                                 "CASINO", "QUALITÁ", "PRATO FINO", "PILECCO NOBRE", "PILECO NOBRE", "Organic", "KI CALDO",
-                                "SUPER MÁXIMO", "SUPER MAXIMO", "YOKI", "VAPZA"]
-        self.list_subcategoria = ["arroz", "feijao"]
+                                "SUPER MÁXIMO", "SUPER MAXIMO", "YOKI", "VAPZA", "ITAJÁ", "CARAVELAS", "MÃE TERRA", "COLOMBO",
+                                "UNIÃO", "DA BARRA", "GUARANI", "NATIVE", "MAGRO", "LOWÇUCAR", "MAIS VITA", "ORGANIC"]
+        self.list_subcategoria = ["arroz", "feijao", "acucar"]
         self.cursor = self.db.cursor(buffered=True)
-
-    def set_URL(self, URL):
-        self.URL = URL
-        winHandleBefore = self.driver.current_window_handle
+        self.driver = driver
         self.driver.get(URL)
-        self.driver.switch_to_window(winHandleBefore)
-        time.sleep(5)
-
-    def open_browser(self):
-        self.driver = webdriver.Firefox()
-        self.driver.get(self.URL)
 
     def get_data(self):
         filter_text = str(self.driver.find_element_by_class_name("filter").text)
@@ -110,23 +97,19 @@ class Produto(object):
 
                 self.db.commit()
 
-    def close_browser(self):
-        self.driver.close()
+class ProdutoCarrefour(object):
 
+    def __init__(self, URL, driver):
+        self.URL = URL
+        self.driver = driver
 
-
-
-URL_arroz = "https://www.deliveryextra.com.br/busca?c= cat2:alimentos_arrozcomum"
-URL_feijao = "https://www.deliveryextra.com.br/busca?c= cat2:alimentos_feijao"
-
-prod = [URL_arroz, URL_feijao]
-
-Produtos = Produto("https://www.deliveryextra.com.br/")
-Produtos.open_browser()
-
-for i in prod:
-    Produtos.set_URL(i)
-    dados = Produtos.get_data()
-    Produtos.list_prod(dados)
-
-Produtos.close_browser()
+    # def get_data(self):
+    #     data = self.driver.find_element_by_class_name("result")
+    #     for i in 20:
+    #         print(self.driver.find_element_by_class_name("productCodePost"))
+    #     # html = data.get_attribute("innerHTML")
+    #     # soup = BeautifulSoup(html, "html.parser")
+    #     # product_list = soup.findAll('li', class_='product col-xs-6 col-sm-6 col-md-3')
+    #     # print(len(product_list))
+    #     # fistr_product = product_list[0]
+    #     # print(fistr_product.form)
